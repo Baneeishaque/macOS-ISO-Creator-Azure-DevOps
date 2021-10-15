@@ -1,0 +1,51 @@
+pool:
+  vmImage: 'macOS-latest'
+
+# Variables
+variables:
+  betaVersion : 10
+  # Secret Variables
+  # MAPPED_FTP_HOST: $(FTP_HOST)
+  # MAPPED_FTP_USER: $(FTP_USER)
+  # MAPPED_FTP_PWD: $(FTP_PWD)
+  # MAPPED_MEGA_USERNAME: $(MEGA_USERNAME)
+  # MAPPED_MEGA_PASSWORD: $(MEGA_PASSWORD)
+
+steps:
+  - script: wget http://swcdn.apple.com/content/downloads/21/10/002-17762-A_GUNYNIZ0PW/witdqh4bei493fvgin01qavvy1dfhcb87w/InstallAssistant.pkg
+    displayName: 'Downloading macOS Monterey Beta $(betaVersion)'
+    timeoutInMinutes: 0
+  - script: sudo installer -store -pkg InstallAssistant.pkg -target /
+    displayName: 'Installing macOS Monterey Beta $(betaVersion) pkg File'
+    timeoutInMinutes: 0
+  - script: |
+      sudo hdiutil create -o /tmp/Monterey -size 16384m -volname Monterey -layout SPUD -fs HFS+J
+      sudo hdiutil attach /tmp/Monterey.dmg -noverify -mountpoint /Volumes/Monterey
+      sudo /Install\ macOS\ Monterey.app/Contents/Resources/createinstallmedia --volume /Volumes/Monterey --nointeraction
+      hdiutil eject -force /Volumes/Install\ macOS\ Monterey
+      hdiutil convert /tmp/Monterey.dmg -format UDTO -o ~/Desktop/Monterey
+      mv -v ~/Desktop/Monterey.cdr ~/Desktop/MontereyBeta$(betaVersion).iso
+    displayName: 'Create macOS Monterey Beta $(betaVersion) Installer ISO File'
+    timeoutInMinutes: 0
+  # # Upload Workload Directory Zip File
+  # - task: FtpUpload@2
+  #   displayName: 'FTP Upload VS$(visualStudioVersion) $(version) $(Build.SourceBranchName) Directory Zip File'
+  #   inputs:
+  #     credentialsOption: inputs
+  #     serverUrl: 'ftp://$(MAPPED_FTP_HOST)'
+  #     username: $(MAPPED_FTP_USER)
+  #     password: $(MAPPED_FTP_PWD)
+  #     # TODO : Add option for file instead of directory
+  #     rootDirectory: '.'
+  #     remoteDirectory: '/public_html/files/$(repositoryName)/$(Build.SourceVersion)'
+  #     filePatterns: 'VS$(visualStudioVersion)-$(version)_layout_$(Build.SourceBranchName).zip'
+  - publish: ~/Desktop/MontereyBeta$(betaVersion).iso
+    artifact: MontereyBeta$(betaVersion).iso
+  # - script: |
+      # CALL megatools-1.11.0-git-20210505-win64\megatools.exe test -d /Root/$(repositoryName) --username $(MAPPED_MEGA_USERNAME) --password $(MAPPED_MEGA_PASSWORD)
+      # IF ERRORLEVEL 1 (
+        # CALL megatools-1.11.0-git-20210505-win64\megatools.exe mkdir /Root/$(repositoryName) --username $(MAPPED_MEGA_USERNAME) --password $(MAPPED_MEGA_PASSWORD)
+      # )
+    # displayName: 'Mega : Check & Create (if not available) $(repositoryName) Folder'
+  # - script: CALL megatools-1.11.0-git-20210505-win64\megatools.exe put --path /Root/$(repositoryName)/VS$(visualStudioVersion)-$(version)_layout_$(Build.SourceBranchName).zip VS$(visualStudioVersion)-$(version)_layout_$(Build.SourceBranchName).zip --username $(MAPPED_MEGA_USERNAME) --password $(MAPPED_MEGA_PASSWORD)
+    # displayName: 'Mega : Upload VS$(visualStudioVersion) $(version) $(Build.SourceBranchName) Directory Zip File'
