@@ -12,15 +12,10 @@ variables:
   # MAPPED_MEGA_PASSWORD: $(MEGA_PASSWORD)
 
 steps:
-  - script: pwd
-  - script: ls
   - script: wget http://swcdn.apple.com/content/downloads/21/10/002-17762-A_GUNYNIZ0PW/witdqh4bei493fvgin01qavvy1dfhcb87w/InstallAssistant.pkg
     displayName: 'Downloading macOS Monterey Beta $(betaVersion)'
     timeoutInMinutes: 0
-  - script: pwd
-  - script: ls
-  # - script: sudo installer -allowUntrusted -verboseR -pkg InstallAssistant.pkg -target /
-  - script: installer -allowUntrusted -verboseR -pkg InstallAssistant.pkg -target /
+  - script: sudo installer -allowUntrusted -verboseR -pkg InstallAssistant.pkg -target /
     displayName: 'Installing macOS Monterey Beta $(betaVersion) pkg File'
     timeoutInMinutes: 0
   # - script: |
