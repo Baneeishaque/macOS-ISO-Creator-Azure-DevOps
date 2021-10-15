@@ -28,7 +28,7 @@ steps:
   - script: |
       hdiutil create -o /tmp/Monterey -size 16384m -volname Monterey -layout SPUD -fs HFS+J
       hdiutil attach /tmp/Monterey.dmg -noverify -mountpoint /Volumes/Monterey
-      /Applications/Install\ macOS\ Monterey\ beta.app/Contents/Resources/createinstallmedia --volume /Volumes/Monterey --nointeraction
+      sudo /Applications/Install\ macOS\ Monterey\ beta.app/Contents/Resources/createinstallmedia --volume /Volumes/Monterey --nointeraction
       hdiutil eject -force /Volumes/Install\ macOS\ Monterey\ beta
       hdiutil convert /tmp/Monterey.dmg -format UDTO -o ~/Desktop/Monterey
       mv -v ~/Desktop/Monterey.cdr ~/Desktop/MontereyBeta$(betaVersion).iso
